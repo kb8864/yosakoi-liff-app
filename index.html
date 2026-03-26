@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>七福よさこい連 出欠フォーム</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background-color: #f5f5f5; }
+    .container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #333; font-size: 18px; }
+    label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; color: #444;}
+    .highlight-label { display: block; margin-top: 15px; font-weight: bold; font-size: 16px; color: #d32f2f; background-color: #ffebee; padding: 10px; border-left: 6px solid #d32f2f; border-radius: 4px; }
+    .req-mark { color: red; font-size: 12px; margin-left: 4px; vertical-align: top;}
+    select, input[type="text"], textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+    textarea { resize: vertical; }
+    button { width: 100%; padding: 12px; margin-top: 25px; background-color: #06C755; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    button:disabled { background-color: #ccc; }
+    #loading { text-align: center; color: #666; margin-bottom: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>イベント出欠回答</h2>
+    <div id="loading">LINEと接続中...（画面が変わらない場合はエラーです）</div>
+
+    <form id="attendanceForm" style="display:none;" onsubmit="submitData(event)">
+      <label class="highlight-label">参加するイベント <span class="req-mark">※必須</span></label>
+      <select name="イベント名" id="eventName" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="テスト祭り">テスト祭り</option>
+      </select>
+
+      <label>あだ名 <span class="req-mark">※必須</span></label>
+      <input type="text" name="あだ名" id="nickname" required placeholder="例：てすと">
+
+      <label>参加ステータス <span class="req-mark">※必須</span></label>
+      <select name="参加ステータス" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="参加">参加</option>
+        <option value="不参加">不参加</option>
+        <option value="保留（参加より）">保留（参加より）</option>
+        <option value="保留（不参加より）">保留（不参加より）</option>
+      </select>
+
+      <label>ファミリー制度 <span class="req-mark">※必須</span></label>
+      <select name="ファミリー制度" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="該当なし">該当なし</option>
+        <option value="01_みぃ">01_みぃ</option>
+        <option value="02_おせき">02_おせき</option>
+      </select>
+
+      <label>めちゃくちゃ大事練（絶対練）の参加 <span class="req-mark">※必須</span></label>
+      <select name="絶対練の参加" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="該当なし">該当なし</option>
+        <option value="参加">参加</option>
+        <option value="不参加">不参加</option>
+        <option value="保留">保留</option>
+      </select>
+
+      <label>振り（4パターン） <span class="req-mark">※必須</span></label>
+      <select name="振り" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="該当なし">該当なし</option>
+        <option value="男振り">男振り</option>
+        <option value="女振り">女振り</option>
+        <option value="MC">MC</option>
+        <option value="旗">旗</option>
+      </select>
+
+      <label>左右振り（3パターン） <span class="req-mark">※必須</span></label>
+      <select name="左右振り" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="該当なし">該当なし</option>
+        <option value="右">右</option>
+        <option value="左">左</option>
+        <option value="どちらでもない">どちらでもない</option>
+      </select>
+
+      <label>備考 <span style="font-size:12px; font-weight:normal; color:#888;">(任意)</span></label>
+      <textarea name="備考" rows="4" placeholder="保留の場合いつごろわかりそうか、遅刻・早退等、めちゃ大事練不参加理由などを記入してください"></textarea>
+
+      <button type="submit" id="submitBtn">送信する</button>
+    </form>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    const LIFF_ID = "2008786392-LVZar2Y8"; 
+    
+    // ★★★ ここに先ほどコピーしたGASのウェブアプリURLを貼り付けます ★★★
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJBHNJVsPvSp-w14tj4uWuQeoyUJlZ0frkriDbPilTTn9yMR_GSBYOpAX88277VGHzpg/exec"; 
+
+    liff.init({ liffId: LIFF_ID }).then(() => {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      } else {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('attendanceForm').style.display = 'block';
+      }
+    }).catch((err) => {
+      alert("LIFFエラーが発生しました：\n" + err.message);
+      document.getElementById('loading').innerText = "エラー: " + err.message;
+    });
+
+    function submitData(event) {
+      event.preventDefault(); 
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerText = "送信中...";
+
+      liff.getProfile().then(profile => {
+        const formElements = document.getElementById('attendanceForm').elements;
+        const answers = {};
+        for (let i = 0; i < formElements.length; i++) {
+          const item = formElements[i];
+          if (item.name && item.type !== 'submit') {
+            answers[item.name] = item.value;
+          }
+        }
+
+        const data = {
+          uid: profile.userId,
+          eventName: document.getElementById('eventName').value,
+          answers: answers
+        };
+
+        // GASへデータを送信 (fetch API)
+        fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" }, // CORS回避のためtext/plain
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+          if(result.status === "success") {
+            alert("回答を保存しました！\nウインドウを閉じます。");
+            liff.closeWindow();
+          } else {
+            throw new Error(result.message);
+          }
+        })
+        .catch(err => {
+          alert("エラーが発生しました。やり直してください。\n" + err.message);
+          btn.disabled = false;
+          btn.innerText = "送信する";
+        });
+      });
+    }
+  </script>
+</body>
+</html>
