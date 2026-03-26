@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>グループID取得ツール</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: center; background-color: #f5f5f5; }
+    .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 20px; }
+    .id-text { font-size: 14px; word-break: break-all; background: #eee; padding: 15px; border-radius: 4px; margin: 15px 0; color: #333; font-family: monospace;}
+    button { background: #06C755; color: white; border: none; padding: 12px 20px; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>⚙️ 管理者専用ツール</h2>
+  <div class="box">
+    <p style="font-size:14px; color:#555;">このグループのID</p>
+    <div class="id-text" id="groupId">LINEと通信中...</div>
+    <button id="copyBtn" onclick="copyId()" style="display:none;">IDをコピーする</button>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    // ★★★ ステップ1で取得した新しいLIFF IDをここに入れます ★★★
+    const LIFF_ID = "2008786392-vBdzvJKq"; 
+
+    liff.init({ liffId: LIFF_ID }).then(() => {
+      // 現在開かれている場所の情報（Context）を取得
+      const context = liff.getContext();
+      
+      // グループトークの中から開かれている場合
+      if (context && context.type === "group") {
+        document.getElementById('groupId').innerText = context.groupId;
+        document.getElementById('copyBtn').style.display = "inline-block";
+      } else {
+        document.getElementById('groupId').innerText = "❌ エラー\nLINEの「グループトーク内」から開いてください。";
+      }
+    }).catch((err) => {
+      document.getElementById('groupId').innerText = "初期化エラー: " + err.message;
+    });
+
+    // コピーボタンの処理
+    function copyId() {
+      const text = document.getElementById('groupId').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("コピーしました！\nスプレッドシートに貼り付けてください。");
+        liff.closeWindow(); // コピーしたら自動で画面を閉じる
+      }).catch(err => {
+        alert("コピーに失敗しました。手動で選択してコピーしてください。");
+      });
+    }
+  </script>
+</body>
+</html>
