@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>七福よさこい連 出欠フォーム</title>
+  <title>祭り出欠フォーム</title>
   <style>
     body { font-family: sans-serif; padding: 20px; background-color: #f5f5f5; }
     .container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -21,10 +21,10 @@
 <body>
   <div class="container">
     <h2>祭り出欠回答</h2>
-    <div id="loading">LINEと接続中...（画面が変わらない場合はエラーです）</div>
+    <div id="loading">LINEと接続中...（画面が変わらない場合は更新して下さい）</div>
 
     <form id="attendanceForm" style="display:none;" onsubmit="submitData(event)">
-      <label class="highlight-label">参加する祭り <span class="req-mark">※必須</span></label>
+      <label class="highlight-label">回答する祭りを選んでください <span class="req-mark">※必須</span></label>
       <select name="祭り名" id="eventName" required>
         <option value="" disabled selected>選択してください</option>
         <option value="テスト祭り">テスト祭り</option>
@@ -47,7 +47,7 @@
       <label>ファミリー制度 <span class="req-mark">※必須</span></label>
       <select name="ファミリー制度" required>
         <option value="" disabled selected>選択してください</option>
-        <option value="該当なし">該当なし</option>
+        
         <option value="01_みぃ">01_みぃ</option>
         <option value="02_おせき">02_おせき</option>
         <option value="03_ばな">03_ばな</option>
@@ -103,7 +103,7 @@
   <script>
     const LIFF_ID = "2008786392-LVZar2Y8"; 
     
-    // ★★★ ここに先ほどコピーしたGASのウェブアプリURLを貼り付けます ★★★
+    // ★★★ ここにコピーしたGASのウェブアプリURLを貼り付けます ★★★
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJBHNJVsPvSp-w14tj4uWuQeoyUJlZ0frkriDbPilTTn9yMR_GSBYOpAX88277VGHzpg/exec"; 
 
     liff.init({ liffId: LIFF_ID }).then(() => {
